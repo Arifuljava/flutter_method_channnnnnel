@@ -22,6 +22,7 @@ class _DataSendFlutterState extends State<DataSendFlutter> {
     try {
       print("First");
       final result = navigateToCameraSDK.invokeMapMethod('getSwiftNavigator');
+      print("instance");
       print(result);
     } on PlatformException catch (e){
       print('error:$e');
@@ -31,7 +32,22 @@ class _DataSendFlutterState extends State<DataSendFlutter> {
       _greeting ='call successful you have got the swift Navigator';
     });
   }
-
+  Future _getnavigator22(Uint8List? bitmap) async{
+    try {
+      print("First");
+      final result = navigateToCameraSDK.invokeMethod('getSwiftNavigator',{
+        "bitmap",bitmap
+      });
+      print("instance");
+      print(result);
+    } on PlatformException catch (e){
+      print('error:$e');
+      _greeting = 'error occured:$e';
+    }
+    setState(() {
+      _greeting ='call successful you have got the swift Navigator';
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -49,7 +65,7 @@ class _DataSendFlutterState extends State<DataSendFlutter> {
               }
               print("get Add Data");
             },
-            child: Text("Send Data and then show data"),
+            child: Text("Send Data and then show data(Swift)"),
           )
         ),
       ),

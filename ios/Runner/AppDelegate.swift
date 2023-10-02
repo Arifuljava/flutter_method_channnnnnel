@@ -36,35 +36,98 @@ import Flutter
   }
 }
 */
+
  @UIApplicationMain
-import Cocoa
-import FlutterMacOS
+@objc class AppDelegate: FlutterAppDelegate {
+      override func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
-@NSApplicationMain
-class AppDelegate: FlutterAppDelegate {
-    override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        return true
-    }
+      ) -> Bool {
+        let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
+       // GeneratedPluginRegistrant.register(with: self)
 
-    override func application(_ application: NSApplication, didFinishLaunchingWithOptions launchOptions: [NSApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let flutterViewController = FlutterViewController.init()
+        let navigatorChannel = FlutterMethodChannel(name: "com.fluttertonative/navigateToCameraSDK", binaryMessenger:  controller.binaryMessenger)
+       navigatorChannel.setMethodCallHandler ({
+          [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
+          // Note: this method is invoked on the UI thread.
 
-        // Register the FlutterViewController
-        GeneratedPluginRegistrant.register(with: flutterViewController)
+           guard call.method == "getSwiftNavigator" else {
+             result(FlutterMethodNotImplemented)
+             return
+           }
+        
+          /*
+           if call.method == "getSwiftNavigator" {
+                           let  textToSend = "Hello from Swift!"
+                           result(textToSend)
+                       } else {
+                           result(FlutterMethodNotImplemented)
+                       }
+           */
+           self?.callNavigator()
+        //self?.openSecondScreen("hello")
 
-        // Create a FlutterEngine
-        let flutterEngine = FlutterEngine(name: "my flutter engine")
-        flutterEngine.run()
-
-        // Attach the FlutterViewController to the window
-        let window = NSWindow.init(contentViewController: flutterViewController)
-        window.title = "Flutter macOS App"
-        window.frame = NSRect(x: 100, y: 100, width: 800, height: 600)
-        window.makeKeyAndOrderFront(nil)
-
+       })
+       // GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+      }
+        private func receiveGreeting(result: FlutterResult){
+            result("Hello from Swift Code...")
+        }
+        private func callNavigator(){
+            let storyboard = UIStoryboard(name: "MainSecond", bundle: nil)
+            let secondController = storyboard.instantiateViewController(withIdentifier: "cellgres") as! SecondCntroller
+            window?.rootViewController?.present(secondController, animated: true, completion: nil)
+            print("Hello\n")
+          /*
+           window = UIWindow(frame: UIScreen.main.bounds)
+           window?.rootViewController = SecondCntroller() // Set ViewControllerA as the root view controller
+           window?.makeKeyAndVisible()
+           */
+            
+
+        }
+      
+      
+         func openSecondScreen(_ text: String?) {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let secondController = storyboard.instantiateViewController(withIdentifier: "cellgres") as! SecondCntroller
+
+               
+
+                window?.rootViewController?.present(secondController, animated: true, completion: nil)
+            }
+   
+         
     }
 
-    // Other methods, if needed
-}
 
+
+//testing
+import Flutter
+
+@objc
+class MySwiftPlugin: NSObject, FlutterPlugin {
+  static func register(with registrar: FlutterPluginRegistrar) {
+    let channel = FlutterMethodChannel(name: "my_plugin_channel", binaryMessenger: registrar.messenger())
+    let instance = MySwiftPlugin()
+    registrar.addMethodCallDelegate(instance, channel: channel)
+  }
+
+  func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    if call.method == "sendBitmapToSwift" {
+      if let arguments = call.arguments as? [String: Any],
+         let byteList = arguments["bitmapData"] as? FlutterStandardTypedData {
+        // Process the received data
+        // Perform Swift-specific tasks here
+        // You can access 'byteList.data' to get the bytes of your bitmapData
+        result("Data received by Swift")
+      } else {
+        result(FlutterError(code: "INVALID_ARGUMENTS", message: "Invalid arguments", details: nil))
+      }
+    } else {
+      result(FlutterMethodNotImplemented)
+    }
+  }
+}
